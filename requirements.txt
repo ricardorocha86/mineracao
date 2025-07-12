@@ -3,3 +3,4 @@ pandas==2.3.0
 streamlit==1.46.0 
 firebase-admin==6.5.0
 scikit-learn==1.2.1
+numpy==1.23.5
