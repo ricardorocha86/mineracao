@@ -102,16 +102,23 @@ def mostrar_dialog_resultado(f1_score):
 
 # --- Interface do Streamlit ---
 
-st.set_page_config(page_title="Competição de ML")
+# Configura a página do Streamlit com título, ícone e layout amplo para melhor visualização
+st.set_page_config(
+    page_title = "Competição de Machine Learning 2025/1 - Ranking Oficial",
+    page_icon = "🏆",
+    layout = "centered",
+    initial_sidebar_state = "collapsed"
+)
 
 # Adiciona a imagem de capa aleatória
 imagens_capa = [f"https://raw.githubusercontent.com/ricardorocha86/Datasets/refs/heads/master/imagens_capa_competicao/Google_AI_Studio({i}).png" for i in range(1, 6)]
 imagem_selecionada = random.choice(imagens_capa)
 st.image(imagem_selecionada, use_container_width=True)
 
-st.markdown("# **Ranking da Competição de ML 🏆**")
-st.markdown("Envie sua previsão e veja sua posição no ranking!")
+st.markdown("# **Competição de ML 🏆**")
+st.caption("Envie sua previsão e veja sua posição no ranking!")
 
+st.divider() 
 # Carrega os dados de referência e submissões existentes
 submissoes_df = carregar_submissoes()
 nomes_existentes = sorted(submissoes_df['nome'].unique()) if not submissoes_df.empty else []
@@ -134,22 +141,23 @@ if nomes_existentes:
         key='tipo_submissao' # Adiciona uma chave para manter o estado
     )
 
-# --- Formulário de Envio ---
-with st.form("formulario_submissao", clear_on_submit=True):
-    nome_participante = None
-    if eh_primeira_submissao == 'Sim':
-        if not nomes_existentes:
-             st.info("👋 Bem-vindo! Para participar, insira seu nome abaixo.")
-        nome_participante = st.text_input("Seu Nome ou Nome da Equipe", max_chars=50)
-    else: # eh_primeira_submissao == 'Não'
-        nome_participante = st.selectbox("Selecione seu nome", options=nomes_existentes)
+# --- Seção de Submissão ---
+nome_participante = None
+if eh_primeira_submissao == 'Sim':
+    if not nomes_existentes:
+            st.info("👋 Bem-vindo! Para participar, insira seu nome abaixo.")
+    nome_participante = st.text_input("Nome da equipe", max_chars=50, placeholder="Equipe Rocket")
+else: # eh_primeira_submissao == 'Não'
+    nome_participante = st.selectbox("Selecione seu nome", options=nomes_existentes)
 
-    descricao_modelo = st.text_input("Descrição do Modelo (ex: RandomForest, v2.1)", max_chars=100, help="Descreva brevemente o modelo ou a versão que você usou nesta submissão.")
-    arquivo_submetido = st.file_uploader("Selecione seu arquivo de submissão (.csv)", type=["csv"])
-    
-    enviado = st.form_submit_button("Enviar Submissão")
+descricao_modelo = st.text_input("Descrição do Modelo Utilizado", max_chars=100, placeholder="RandomForest Tunado v2")
+arquivo_submetido = st.file_uploader("Selecione seu arquivo de submissão (.csv)", type=["csv"])
 
-if enviado and nome_participante and arquivo_submetido:
+# O botão só é habilitado se todos os campos estiverem preenchidos
+botao_desabilitado = not (nome_participante and descricao_modelo and arquivo_submetido)
+enviado = st.button("Enviar Submissão", disabled=botao_desabilitado, use_container_width=True, type='primary')
+
+if enviado:
     # 1. Barra de progresso falsa
     progress_bar = st.progress(0, text="Analisando sua submissão...")
     for i in range(100):
@@ -174,10 +182,7 @@ if enviado and nome_participante and arquivo_submetido:
         progress_bar.empty()
         # O erro já é exibido pela função validar_submissao
 
-elif enviado:
-    st.error("Por favor, preencha seu nome e selecione um arquivo.")
-
-st.divider()
+st.divider() 
 
 # --- Seção de Resultados ---
 if not submissoes_df.empty:
