@@ -98,6 +98,7 @@ def mostrar_dialog_resultado(f1_score):
     st.markdown(f"## ✅ Submissão Enviada com Sucesso!")
     st.markdown(f"### Seu F1-Score é: **{f1_score:.4f}**")
     if st.button("OK", use_container_width=True):
+        st.cache_data.clear() # Limpa o cache antes de recarregar
         st.rerun()
 
 # --- Interface do Streamlit ---
